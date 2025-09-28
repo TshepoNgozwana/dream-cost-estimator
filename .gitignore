@@ -1,0 +1,12 @@
+﻿venv/
+.env
+*.env
+.streamlit/secrets.toml
+__pycache__/
+*.pyc
+.env.local
+.DS_Store
+node_modules/
+.cache/
+*.sqlite
+*.db
