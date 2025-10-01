@@ -1,0 +1,16 @@
+name: guard-main
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  block:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block non-owner pushes to main
+        # Allow only Christo (and Dependabot) to push/merge to main
+        if: ${{ github.actor != 'swanepoelchristo' && github.actor != 'dependabot[bot]' }}
+        run: |
+          echo "Only Christo may push/merge to main."
+          exit 1

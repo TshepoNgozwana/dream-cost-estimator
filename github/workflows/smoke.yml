@@ -1,0 +1,12 @@
+name: smoke
+on:
+  pull_request:
+  push:
+    branches: [ dev, main ]
+jobs:
+  ok:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Smoke
+        run: echo "ok"
