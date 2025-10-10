@@ -39,5 +39,5 @@ def generate_spec(req: IdeaRequest):
         "title": req.idea,
         "inputs": ["idea_text"],
         "outputs": ["spec_json"],
-        "notes": "This is a simple hard-coded stub for the 2-hour trial."
+        "notes": "This is a simple hard-coded stub for the trial."
     }

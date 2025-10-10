@@ -1,0 +1,2 @@
+{"ts": "2025-10-10T10:24:35.712712+00:00", "event": "user.msg", "payload": {"msg": "hello"}, "app": "MilkBox AI — Dream Landing Page", "version": "1.4"}
+{"ts": "2025-10-10T10:24:35.717538+00:00", "event": "assistant.msg", "payload": {"msg": "Milkbot offline (no API key). Add OPENAI_API_KEY and `pip install openai`."}, "app": "MilkBox AI — Dream Landing Page", "version": "1.4"}
