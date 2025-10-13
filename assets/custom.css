@@ -1,0 +1,73 @@
+/* ─────────────────────────────────────────────
+   Dream Landing Page – Custom Streamlit Theme
+   ───────────────────────────────────────────── */
+
+html, body, [class*="css"]  {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 16px;
+}
+
+/* Headings */
+h1, h2, h3 {
+  font-weight: 600;
+  color: #111;
+}
+
+h1 { font-size: 36px; }
+h2 { font-size: 28px; }
+h3 { font-size: 22px; }
+
+/* Buttons */
+div.stButton > button {
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.6rem 1.4rem;
+  border: none;
+  transition: all 0.2s ease-in-out;
+}
+
+div.stButton > button:hover {
+  background: linear-gradient(90deg, #1e40af, #2563eb);
+  transform: translateY(-1px);
+}
+
+/* Sidebar tweaks */
+section[data-testid="stSidebar"] {
+  background-color: #f8fafc;
+  border-right: 1px solid #e5e7eb;
+}
+
+/* Metrics and boxes */
+[data-testid="stMetricValue"] {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+/* Divider */
+hr {
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Mobile */
+@media (max-width: 400px) {
+  h1 { font-size: 22px !important; }
+  button { font-size: 14px !important; }
+}
+
+p, label, input, textarea {
+    font-size: 16px !important;
+}
+
+small {
+    font-size: 14px;
+    color: #666;
+}
+
+div.block-container {
+    padding-top: 1rem;
+    padding-bottom: 3rem;
+    padding-left: 1.2rem;
+    padding-right: 1.2rem;
+}
