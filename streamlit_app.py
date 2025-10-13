@@ -12,6 +12,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 from typing import Dict, Any, List
 from dotenv import load_dotenv
+from utils.cockpit import write_cockpit_event
 
 # Inject custom CSS
 def local_css(file_name: str):
@@ -22,19 +23,25 @@ Payload = Dict[str, Any]
 Breakdown = Dict[str, float]
 
 # ──────────────────────────────────────────────────────────────
-# Load local environment (.env.local) into Streamlit secrets
+# Load local environment (.env.local) into memory
 # ──────────────────────────────────────────────────────────────
 load_dotenv(".env.local")
 
-# Dynamically merge into Streamlit's secrets dictionary
-if "OPENAI_API_KEY" not in st.secrets:
-    st.secrets["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
+# Helper: safely retrieve keys from secrets or environment
+def get_secret(key: str, default: str = "") -> str:
+    """Safely get secret from st.secrets or environment variable."""
+    if key in st.secrets:
+        return str(st.secrets[key]).strip()
+    return os.getenv(key, default).strip()
 
-if "SUPABASE_URL" not in st.secrets:
-    st.secrets["SUPABASE_URL"] = os.getenv("SUPABASE_URL", "")
+# Retrieve keys (without assigning to st.secrets)
+OPENAI_API_KEY = get_secret("OPENAI_API_KEY")
+SUPABASE_URL = get_secret("SUPABASE_URL")
+SUPABASE_ANON_KEY = get_secret("SUPABASE_ANON_KEY")
 
-if "SUPABASE_ANON_KEY" not in st.secrets:
-    st.secrets["SUPABASE_ANON_KEY"] = os.getenv("SUPABASE_ANON_KEY", "")
+# Optional: display quick check in logs or Preflight
+has_openai_key = bool(OPENAI_API_KEY)
+has_supabase = bool(SUPABASE_URL and SUPABASE_ANON_KEY)
 
 # Optional helpers (safe if missing)
 try:
@@ -101,6 +108,7 @@ for p in (DATA_DIR, COCKPIT_DIR, UPLOADS_DIR):
 
 LOG_DREAM = COCKPIT_DIR / "dream_landing.jsonl"
 LOG_MILKBOT = COCKPIT_DIR / "milkbot_chat.jsonl"
+LOG_PREFLIGHT = COCKPIT_DIR / "preflight.jsonl"
 
 # ──────────────────────────────────────────────────────────────
 # Milkbot (built-in chat)
@@ -182,10 +190,44 @@ st.divider()
 # Page config & tabs
 # ──────────────────────────────────────────────────────────────
 st.set_page_config(page_title=APP_NAME, page_icon="🧰", layout="wide")
-tab_dream, tab_milkbot = st.tabs(["Dream Landing page","Milkbot"])
+tab_dream, tab_milkbot, tab_preflight = st.tabs(["Dream Landing page", "Milkbot", "Preflight"])
+
+with tab_dream:
+    st.info("This is the Dream Landing page tab. Use the buttons above to navigate to other sections.", icon="ℹ️")
 
 with tab_milkbot:
     milkbot_tab()
+
+# ──────────────────────────────────────────────────────────────
+# Preflight tab – System check and environment validation
+# ──────────────────────────────────────────────────────────────
+with tab_preflight:
+    st.title("🧩 Preflight Check")
+    st.caption("Quick system and environment validation before running builds.")
+
+    results = {}
+    results["Python Version"] = os.sys.version.split()[0]
+    results["Streamlit Version"] = st.__version__
+    results["Working Directory"] = os.getcwd()
+
+    # Check secrets and environment variables
+    has_openai_key = bool(
+    st.secrets.get("OPENAI_API_KEY", "") or os.environ.get("OPENAI_API_KEY", "")
+    )
+    results["OPENAI_API_KEY loaded"] = has_openai_key
+    results["Environment Variables"] = dict(os.environ)
+
+    if has_openai_key:
+        st.success("✅ OPENAI_API_KEY is loaded from st.secrets.")
+        write_cockpit_event("preflight.ok", {"openai_key": True})
+    else:
+        st.warning("⚠️ Missing OPENAI_API_KEY in st.secrets.")
+        write_cockpit_event("preflight.missing_openai_key", {"openai_key": False})
+
+    st.divider()
+    st.subheader("System Information")
+    st.json(results)
+
 
 # Hidden cockpit logs for internal viewing
 LOG_FILE = Path("data/cockpit/events.jsonl")

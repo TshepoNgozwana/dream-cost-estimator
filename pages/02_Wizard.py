@@ -1,9 +1,17 @@
 import streamlit as st
-import json, os, uuid, base64, qrcode
-from io import BytesIO
+import json, os, uuid, base64
 from datetime import datetime, timezone
 from pathlib import Path
 import openai
+
+try:
+    import qrcode
+    from io import BytesIO
+    import base64
+    HAS_QR = True
+except ImportError:
+    HAS_QR = False
+
 
 
 # ──────────────────────────────────────────────────────────────
@@ -73,6 +81,9 @@ def compute_feature_cost(auth_needed, payments_needed, ai_features, integrations
 # QR helper
 # ───────────────────────────────────────────────
 def qr_png_base64(text: str) -> str:
+    if not HAS_QR:
+        st.warning("QR generation unavailable. Install 'qrcode[pil]' and 'pillow' to enable this feature.")
+        return ""
     img = qrcode.make(text)
     buf = BytesIO()
     img.save(buf, format="PNG")
