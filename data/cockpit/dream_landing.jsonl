@@ -64,3 +64,4 @@
 {"ts": "2025-10-10T06:32:58.122128+00:00", "event": "submit_wizard", "payload": {"answers_count": 13, "est_cost": 56.0}, "app": "dream-landing", "version": "1.0"}
 {"ts": "2025-10-10T18:03:56.660273+00:00", "event": "submit_wizard", "payload": {"answers_count": 13, "est_cost": 52.0}, "app": "dream-landing", "version": "1.0"}
 {"ts": "2025-10-10T18:10:30.291845+00:00", "event": "submit_wizard", "payload": {"answers_count": 13, "est_cost": 52.0}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-13T07:31:27.613446+00:00", "event": "submit_wizard", "payload": {"answers_count": 13, "est_cost": 54.0}, "app": "dream-landing", "version": "1.4"}

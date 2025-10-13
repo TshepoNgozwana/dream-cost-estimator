@@ -1,65 +1,98 @@
 # ──────────────────────────────────────────────────────────────
 # MilkBox AI — Dream Landing Page (+ Milkbot tab, Preflight, Cockpit)
-# Drop this file in: app.py
+# Drop this file in: streamlit_app.py
 # ──────────────────────────────────────────────────────────────
 
 from __future__ import annotations
+
+import json
 import os
-from pathlib import Path
-from typing import Dict, Any
-import streamlit as st
-import json, os
-from pathlib import Path
 from datetime import datetime, timezone
-from typing import Dict, Any, List
+from pathlib import Path
+from typing import Dict, Any, List, Optional
+
 from dotenv import load_dotenv
+import streamlit as st
 
-# Inject custom CSS
-def local_css(file_name: str):
-    with open(file_name) as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+# ──────────────────────────────────────────────────────────────
+# Page config (set once, early)
+# ──────────────────────────────────────────────────────────────
+APP_NAME = "MilkBox AI — Dream Landing Page"
+st.set_page_config(page_title=APP_NAME, page_icon="🧰", layout="wide")
 
+# ──────────────────────────────────────────────────────────────
+# Env & secrets handling (read-only, with fallbacks)
+# ──────────────────────────────────────────────────────────────
+# Load .env.local if present (dev convenience)
+load_dotenv(".env.local")
+load_dotenv(override=True)
+
+# Never assign into st.secrets — it's read-only
+OPENAI_API_KEY: str = st.secrets.get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY", "")
+
+# Supabase is optional right now — read values if present, else blank
+SUPABASE_URL: str = st.secrets.get("SUPABASE_URL") or os.getenv("SUPABASE_URL", "")
+SUPABASE_ANON_KEY: str = st.secrets.get("SUPABASE_ANON_KEY") or os.getenv("SUPABASE_ANON_KEY", "")
+
+# ──────────────────────────────────────────────────────────────
+# Types
+# ──────────────────────────────────────────────────────────────
 Payload = Dict[str, Any]
 Breakdown = Dict[str, float]
 
 # ──────────────────────────────────────────────────────────────
-# Load local environment (.env.local) into Streamlit secrets
+# Styling helper
 # ──────────────────────────────────────────────────────────────
-load_dotenv(".env.local")
+def local_css(file_name: str) -> None:
+    """Inject local CSS if the file exists (non-fatal if missing)."""
+    path = Path(file_name)
+    if path.exists():
+        with path.open("r", encoding="utf-8") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# Dynamically merge into Streamlit's secrets dictionary
-if "OPENAI_API_KEY" not in st.secrets:
-    st.secrets["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
-
-if "SUPABASE_URL" not in st.secrets:
-    st.secrets["SUPABASE_URL"] = os.getenv("SUPABASE_URL", "")
-
-if "SUPABASE_ANON_KEY" not in st.secrets:
-    st.secrets["SUPABASE_ANON_KEY"] = os.getenv("SUPABASE_ANON_KEY", "")
-
-# Optional helpers (safe if missing)
-try:
-    from dotenv import load_dotenv
-    load_dotenv(override=True)
-except Exception:
-    pass
-
-st.set_page_config(page_title="Dream Landing Page", layout="wide")
+# Apply CSS (safe if file missing)
 local_css("assets/custom.css")
 
 # ──────────────────────────────────────────────────────────────
 # Global Footer
 # ──────────────────────────────────────────────────────────────
-def app_footer():
-    st.markdown("""
+def app_footer() -> None:
+    st.markdown(
+        """
         <hr>
         <p style='text-align:center; font-size:13px; color:gray;'>
             © 2025 Dream Landing — Built by Team MilkBoxAI | Contact: Christo
         </p>
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
+
+# ──────────────────────────────────────────────────────────────
+# Data dirs & cockpit logs
+# ──────────────────────────────────────────────────────────────
+DATA_DIR = Path("data")
+COCKPIT_DIR = DATA_DIR / "cockpit"
+UPLOADS_DIR = DATA_DIR / "uploads"
+for p in (DATA_DIR, COCKPIT_DIR, UPLOADS_DIR):
+    p.mkdir(parents=True, exist_ok=True)
+
+LOG_DREAM = COCKPIT_DIR / "dream_landing.jsonl"
+LOG_MILKBOT = COCKPIT_DIR / "milkbot_chat.jsonl"
+LOG_EVENTS = COCKPIT_DIR / "events.jsonl"
+
+def _log(logfile: Path, event: str, payload: dict) -> None:
+    """Append a log entry to a JSONL file."""
+    logfile.parent.mkdir(parents=True, exist_ok=True)
+    entry = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "event": event,
+        "payload": payload,
+    }
+    with logfile.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
 
 @st.cache_data(ttl=60)
-def load_recent_logs(path: Path, limit: int = 25):
+def load_recent_logs(path: Path, limit: int = 25) -> List[dict]:
     """Load the most recent cockpit events from JSONL."""
     if not path.exists():
         return []
@@ -68,9 +101,10 @@ def load_recent_logs(path: Path, limit: int = 25):
     return [json.loads(line) for line in lines if line.strip()]
 
 # ──────────────────────────────────────────────────────────────
-# Hero Section + Navigation Buttons + Cockpit Logs
+# Hero Section
 # ──────────────────────────────────────────────────────────────
-st.markdown("""
+st.markdown(
+    """
 <div style='text-align:center; margin-top:2rem;'>
     <h1>🚀 Design. Estimate. Launch.</h1>
     <p style='font-size:18px; color:#444;'>
@@ -88,20 +122,11 @@ st.markdown("""
         </a>
     </div>
 </div>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
-# ──────────────────────────────────────────────────────────────
-# App constants & storage
-# ──────────────────────────────────────────────────────────────
-APP_NAME = "MilkBox AI — Dream Landing Page"
-DATA_DIR = Path("data")
-COCKPIT_DIR = DATA_DIR / "cockpit"
-UPLOADS_DIR = DATA_DIR / "uploads"
-for p in (DATA_DIR, COCKPIT_DIR, UPLOADS_DIR):
-    p.mkdir(parents=True, exist_ok=True)
-
-LOG_DREAM = COCKPIT_DIR / "dream_landing.jsonl"
-LOG_MILKBOT = COCKPIT_DIR / "milkbot_chat.jsonl"
+st.divider()
 
 # ──────────────────────────────────────────────────────────────
 # Milkbot (built-in chat)
@@ -112,40 +137,32 @@ SYSTEM_PROMPT = (
     "Use clear, step-by-step instructions when asked. Keep answers tight."
 )
 
-def _log(logfile: Path, event: str, payload: dict):
-    """Append a log entry to a JSONL file."""
-    entry = {
-        "ts": datetime.now(timezone.utc).isoformat(),
-        "event": event,
-        "payload": payload,
-    }
-    logfile.parent.mkdir(parents=True, exist_ok=True)
-    with logfile.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
-
-def milkbot_tab():
-    from typing import List, Dict
-    # OpenAI client (lazy import so app runs even without package)
+def milkbot_tab() -> None:
+    # Lazy import, so the app still loads if openai isn't installed
     client = None
     model_name = "gpt-4o-mini"
-    try:
-        from openai import OpenAI
-        if st.secrets.get("OPENAI_API_KEY"):
-            client = OpenAI()
-    except Exception:
-        client = None
+
+    if OPENAI_API_KEY:
+        try:
+            from openai import OpenAI  # type: ignore
+            client = OpenAI(api_key=OPENAI_API_KEY)
+        except Exception as e:
+            client = None
 
     st.subheader("💬 Milkbot")
-    if not client:
-        st.info("Set `OPENAI_API_KEY` and install `openai` to chat. `pip install openai`", icon="ℹ️")
+
+    if not OPENAI_API_KEY:
+        st.info("Add an `OPENAI_API_KEY` in `.streamlit/secrets.toml` to enable chat.", icon="ℹ️")
+    elif client is None:
+        st.warning("`openai` package not available. Run: `pip install openai`", icon="⚠️")
 
     if "milkbot_messages" not in st.session_state:
         st.session_state.milkbot_messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "assistant", "content": "Hey! I’m Milkbot. What do you need built?"}
+            {"role": "assistant", "content": "Hey! I’m Milkbot. What do you need built?"},
         ]
 
-    # Show history (skip system)
+    # Show conversation (skip system)
     for msg in st.session_state.milkbot_messages:
         if msg["role"] == "system":
             continue
@@ -160,40 +177,37 @@ def milkbot_tab():
     st.session_state.milkbot_messages.append({"role": "user", "content": user_msg})
     _log(LOG_MILKBOT, "user.msg", {"msg": user_msg})
 
-    # Respond (if client available), else echo fallback
+    # Respond
     with st.chat_message("assistant"):
         if client:
             with st.spinner("Thinking…"):
-                resp = client.chat.completions.create(
-                    model=model_name,
-                    messages=st.session_state.milkbot_messages,
-                    temperature=0.4,
-                )
-                answer = resp.choices[0].message.content or "…"
+                try:
+                    resp = client.chat.completions.create(
+                        model=model_name,
+                        messages=st.session_state.milkbot_messages,
+                        temperature=0.4,
+                    )
+                    answer = resp.choices[0].message.content or "…"
+                except Exception as e:
+                    answer = f"Milkbot had an issue talking to the model: {e}"
         else:
-            answer = "Milkbot offline (no API key). Add OPENAI_API_KEY and `pip install openai`."
+            answer = "Milkbot offline. Add `OPENAI_API_KEY` and `pip install openai` to enable chat."
         st.markdown(answer)
 
     st.session_state.milkbot_messages.append({"role": "assistant", "content": answer})
     _log(LOG_MILKBOT, "assistant.msg", {"msg": answer})
 
-st.divider()
-
 # ──────────────────────────────────────────────────────────────
-# Page config & tabs
+# Tabs (Dream landing + Milkbot)
 # ──────────────────────────────────────────────────────────────
-st.set_page_config(page_title=APP_NAME, page_icon="🧰", layout="wide")
-tab_dream, tab_milkbot = st.tabs(["Dream Landing page","Milkbot"])
+tab_dream, tab_milkbot = st.tabs(["Dream Landing page", "Milkbot"])
 
 with tab_milkbot:
     milkbot_tab()
 
-# Hidden cockpit logs for internal viewing
-LOG_FILE = Path("data/cockpit/events.jsonl")
-LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
-
+# Hidden cockpit logs for internal viewing (lightweight)
 with st.expander("📊 Cockpit (internal logs)", expanded=False):
-    logs = load_recent_logs(LOG_FILE)
+    logs = load_recent_logs(LOG_EVENTS)
     if logs:
         for entry in logs:
             st.code(json.dumps(entry))

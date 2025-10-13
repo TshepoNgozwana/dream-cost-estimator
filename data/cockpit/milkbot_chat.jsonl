@@ -1,2 +1,8 @@
 {"ts": "2025-10-10T10:24:35.712712+00:00", "event": "user.msg", "payload": {"msg": "hello"}, "app": "MilkBox AI — Dream Landing Page", "version": "1.4"}
 {"ts": "2025-10-10T10:24:35.717538+00:00", "event": "assistant.msg", "payload": {"msg": "Milkbot offline (no API key). Add OPENAI_API_KEY and `pip install openai`."}, "app": "MilkBox AI — Dream Landing Page", "version": "1.4"}
+{"ts": "2025-10-13T07:32:02.669334+00:00", "event": "user.msg", "payload": {"msg": "hi"}}
+{"ts": "2025-10-13T07:32:04.355023+00:00", "event": "assistant.msg", "payload": {"msg": "Hey there! What\u2019s on your mind?"}}
+{"ts": "2025-10-13T07:33:50.366977+00:00", "event": "user.msg", "payload": {"msg": "hey milkbot what can you do "}}
+{"ts": "2025-10-13T07:33:53.496407+00:00", "event": "assistant.msg", "payload": {"msg": "I can help with a bunch of things! Need clear instructions, info on a topic, or just some good ol\u2019 advice? I\u2019m here for it. What do you need?"}}
+{"ts": "2025-10-13T07:34:29.733275+00:00", "event": "user.msg", "payload": {"msg": "i need help with my sex life LOL "}}
+{"ts": "2025-10-13T07:34:31.935811+00:00", "event": "assistant.msg", "payload": {"msg": "Gotcha! Let\u2019s keep it respectful and helpful. What specific aspect do you want advice on? Communication, techniques, or something else?"}}
