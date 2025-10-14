@@ -8,10 +8,13 @@ import json
 import os
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 
 from dotenv import load_dotenv
 import streamlit as st
+
+# Preflight event logger utility (writes to cockpit/events.jsonl)
+from utils.cockpit import write_cockpit_event
 
 # ──────────────────────────────────────────────────────────────
 # Page config (set once, early)
@@ -24,20 +27,19 @@ st.set_page_config(page_title=APP_NAME, page_icon="🧰", layout="wide")
 # ──────────────────────────────────────────────────────────────
 # Load .env.local if present (dev convenience)
 load_dotenv(".env.local")
+# Allow .env to override if present (still safe in Codespaces)
 load_dotenv(override=True)
 
-# Never assign into st.secrets — it's read-only
-OPENAI_API_KEY: str = st.secrets.get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY", "")
+def get_secret(key: str, default: str = "") -> str:
+    """Safely get secret from st.secrets or environment variable (no writes to st.secrets)."""
+    if key in st.secrets:
+        return str(st.secrets[key]).strip()
+    return os.getenv(key, default).strip()
 
-# Supabase is optional right now — read values if present, else blank
-SUPABASE_URL: str = st.secrets.get("SUPABASE_URL") or os.getenv("SUPABASE_URL", "")
-SUPABASE_ANON_KEY: str = st.secrets.get("SUPABASE_ANON_KEY") or os.getenv("SUPABASE_ANON_KEY", "")
-
-# ──────────────────────────────────────────────────────────────
-# Types
-# ──────────────────────────────────────────────────────────────
-Payload = Dict[str, Any]
-Breakdown = Dict[str, float]
+# Read keys through the helper (keeps st.secrets read-only)
+OPENAI_API_KEY: str = get_secret("OPENAI_API_KEY")
+SUPABASE_URL: str = get_secret("SUPABASE_URL")
+SUPABASE_ANON_KEY: str = get_secret("SUPABASE_ANON_KEY")
 
 # ──────────────────────────────────────────────────────────────
 # Styling helper
@@ -77,7 +79,7 @@ for p in (DATA_DIR, COCKPIT_DIR, UPLOADS_DIR):
 
 LOG_DREAM = COCKPIT_DIR / "dream_landing.jsonl"
 LOG_MILKBOT = COCKPIT_DIR / "milkbot_chat.jsonl"
-LOG_EVENTS = COCKPIT_DIR / "events.jsonl"
+LOG_EVENTS = COCKPIT_DIR / "events.jsonl"  # write_cockpit_event writes here
 
 def _log(logfile: Path, event: str, payload: dict) -> None:
     """Append a log entry to a JSONL file."""
@@ -124,7 +126,6 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-
 st.divider()
 
 # ──────────────────────────────────────────────────────────────
@@ -145,7 +146,7 @@ def milkbot_tab() -> None:
         try:
             from openai import OpenAI  # type: ignore
             client = OpenAI(api_key=OPENAI_API_KEY)
-        except Exception as e:
+        except Exception:
             client = None
 
     st.subheader("💬 Milkbot")
@@ -197,14 +198,48 @@ def milkbot_tab() -> None:
     _log(LOG_MILKBOT, "assistant.msg", {"msg": answer})
 
 # ──────────────────────────────────────────────────────────────
-# Tabs (Dream landing + Milkbot)
+# Tabs (Dream landing + Milkbot + Preflight)
 # ──────────────────────────────────────────────────────────────
-tab_dream, tab_milkbot = st.tabs(["Dream Landing page", "Milkbot"])
+tab_dream, tab_milkbot, tab_preflight = st.tabs(["Dream Landing page", "Milkbot", "Preflight"])
+
+with tab_dream:
+    st.info("This is the Dream Landing page tab. Use the buttons above to navigate to other sections.", icon="ℹ️")
 
 with tab_milkbot:
     milkbot_tab()
 
+# ──────────────────────────────────────────────────────────────
+# Preflight tab – System check and environment validation
+# ──────────────────────────────────────────────────────────────
+with tab_preflight:
+    st.title("🧩 Preflight Check")
+    st.caption("Quick system and environment validation before running builds.")
+
+    results: Dict[str, Any] = {}
+    results["Python Version"] = os.sys.version.split()[0]
+    results["Streamlit Version"] = st.__version__
+    results["Working Directory"] = os.getcwd()
+
+    # Check secrets and environment variables
+    has_openai_key = bool(
+        st.secrets.get("OPENAI_API_KEY", "") or os.environ.get("OPENAI_API_KEY", "")
+    )
+    results["OPENAI_API_KEY loaded"] = has_openai_key
+
+    if has_openai_key:
+        st.success("✅ OPENAI_API_KEY is loaded from secrets or env.")
+        write_cockpit_event("preflight.ok", {"openai_key": True})
+    else:
+        st.warning("⚠️ Missing OPENAI_API_KEY in secrets/env.")
+        write_cockpit_event("preflight.missing_openai_key", {"openai_key": False})
+
+    st.divider()
+    st.subheader("System Information")
+    st.json(results)
+
+# ──────────────────────────────────────────────────────────────
 # Hidden cockpit logs for internal viewing (lightweight)
+# ──────────────────────────────────────────────────────────────
 with st.expander("📊 Cockpit (internal logs)", expanded=False):
     logs = load_recent_logs(LOG_EVENTS)
     if logs:

@@ -4,3 +4,14 @@
 {"ts": "2025-10-10T10:31:47.987829+00:00", "user": "local-dev", "tool": "dream-landing", "action": "summary.qr_generated", "payload": {"title": "", "goal": "Lead Gen", "estimated_cost_r": 29.0}, "session": "3abe43be-6e34-4c43-a33c-70e3606f0d92"}
 {"ts": "2025-10-10T18:10:38.267592+00:00", "user": "local-dev", "tool": "dream-landing", "action": "summary.copy", "payload": {"title": "Tshepo", "goal": "Lead Gen", "estimated_cost_r": 52.0}, "session": "525cf934-876c-4783-8289-5cfad2f1d837"}
 {"ts": "2025-10-10T18:10:41.767616+00:00", "user": "local-dev", "tool": "dream-landing", "action": "summary.qr_generated", "payload": {"title": "Tshepo", "goal": "Lead Gen", "estimated_cost_r": 52.0}, "session": "ec586f2f-5777-4f03-84bc-d544d6fb165e"}
+{"ts": "2025-10-13T21:42:19.764952+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-13T21:43:45.048740+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-13T21:47:21.124322+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-13T21:59:28.864427+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-13T22:06:42.815858+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-13T22:10:08.550908+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-13T22:21:38.185431+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-13T22:25:43.516391+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.missing_openai_key", "payload": {"openai_key": false}}
+{"ts": "2025-10-13T22:26:26.771288+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-13T22:27:46.720791+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-13T22:28:55.031219+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
