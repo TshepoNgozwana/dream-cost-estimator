@@ -3,6 +3,8 @@ import json, os, uuid, base64
 from datetime import datetime, timezone
 from pathlib import Path
 import openai
+from utils.indicators import compute_live_indicators
+from streamlit_app import _log, LOG_DREAM
 
 try:
     import qrcode
@@ -12,12 +14,9 @@ try:
 except ImportError:
     HAS_QR = False
 
-
-
 # ──────────────────────────────────────────────────────────────
-# Global Header & Footer
+# Global Footer
 # ──────────────────────────────────────────────────────────────
-
 def app_footer():
     st.markdown("""
         <hr>
@@ -106,66 +105,205 @@ if "session_id" not in st.session_state:
     st.session_state.session_id = str(uuid.uuid4())
 
 # ───────────────────────────────────────────────
+# Indicators update callback + defaults
+# ───────────────────────────────────────────────
+def update_answers():
+    """Read all widget keys from st.session_state, normalise into answers,
+    compute indicators, and log to cockpit when changed."""
+    A = st.session_state
+
+    answers = {
+        "title": A.get("title_input", ""),
+        "contact_email": A.get("contact_email_input", ""),
+        "industry": A.get("industry_input", "Manufacturing"),
+        "goal": A.get("goal_input", "Lead Gen"),
+        "audience": A.get("audience_input", "Small <1k"),
+        "auth_needed": A.get("auth_input", False),
+        "payments_needed": A.get("payments_input", False),
+        "ai_features": A.get("ai_features_input", []),
+        "integrations": A.get("integrations_input", []),
+        "content_support": A.get("content_input", "Have copy"),
+        "branding": A.get("branding_input", "Have brand kit"),
+        "timeline": A.get("timeline_input", "1 week"),
+        "budget": A.get("budget_input", "Entry"),
+    }
+
+    # persist canonical answers
+    st.session_state["answers"] = answers
+
+    # compute indicators from the canonical answers (ensures same math as cost)
+    indicators = compute_live_indicators(answers)
+
+    # compare with previous indicators to avoid duplicate logs
+    prev = st.session_state.get("indicators_prev")
+    if prev != indicators:
+        st.session_state["indicators"] = indicators
+        st.session_state["indicators_prev"] = indicators
+        # log via existing _log -> LOG_DREAM
+        try:
+            _log(LOG_DREAM, "indicator.update", indicators)
+        except Exception:
+            # fall back quietly if logging is not available
+            pass
+    else:
+        # ensure indicators present even if unchanged
+        st.session_state.setdefault("indicators", indicators)
+
+# Ensure session defaults for indicators exist
+if "indicators" not in st.session_state:
+    st.session_state["indicators"] = compute_live_indicators(st.session_state.get("answers", {}))
+
+if "indicators_prev" not in st.session_state:
+    st.session_state["indicators_prev"] = None
+
+# ──────────────────────────────────────────────────────────────
+# Reset Wizard Fields
+# ──────────────────────────────────────────────────────────────
+def reset_wizard_fields():
+    """Clear all wizard-related session state values."""
+    keys_to_clear = [
+        "title_input", "contact_email_input", "industry_input", "goal_input",
+        "audience_input", "auth_input", "payments_input", "ai_features_input",
+        "integrations_input", "content_input", "branding_input",
+        "timeline_input", "budget_input"
+    ]
+    for key in keys_to_clear:
+        if key in st.session_state:
+            del st.session_state[key]
+
+    # Also clear computed indicators and answers
+    st.session_state["answers"] = {}
+    st.session_state["last_indicators"] = {}
+
+# ───────────────────────────────────────────────
 # Layout
 # ───────────────────────────────────────────────
 st.title("🧭 Dream Project Wizard")
 st.write("Fill all 13 fields. Sidebar updates live with cost estimate.")
 
 # ─── Inputs in main column ───
-with st.form("wizard_form", clear_on_submit=False):
+with st.container():
     st.markdown("### Step 1 · Basics")
-    project_name = st.text_input("Project name * (1–60 chars)",
-                                 value=st.session_state.answers.get("title", ""))
-    contact_email = st.text_input("Contact email *",
-                                  value=st.session_state.answers.get("contact_email", ""))
-    industry = st.selectbox("Industry",
-                            ["Manufacturing", "Retail", "Services", "Education", "Other"],
-                            index=st.session_state.answers.get("industry_idx", 0))
-    goal = st.selectbox("Primary goal *",
-                        ["Lead Gen", "E-commerce", "Info", "Booking", "Internal Tool"],
-                        index=st.session_state.answers.get("goal_idx", 0))
+    project_name = st.text_input(
+        "Project name * (1–60 chars)",
+        key="title_input",
+        on_change=update_answers,
+        placeholder="e.g. My Project"
+    )
+    contact_email = st.text_input(
+        "Contact email *",
+        key="contact_email_input",
+        on_change=update_answers,
+        placeholder="name@example.com"
+    )
+    industry = st.selectbox(
+        "Industry",
+        ["Manufacturing", "Retail", "Services", "Education", "Other"],
+        key="industry_input",
+        on_change=update_answers
+    )
+    goal = st.selectbox(
+        "Primary goal *",
+        ["Lead Gen", "E-commerce", "Info", "Booking", "Internal Tool"],
+        key="goal_input",
+        on_change=update_answers
+    )
 
     st.markdown("### Step 2 · Features")
-    audience = st.selectbox("Audience size", ["Small <1k", "Growing 1–10k", "Large >10k"])
-    auth_needed = st.checkbox("Auth needed?", value=st.session_state.answers.get("auth", False))
-    payments_needed = st.checkbox("Payments needed?", value=st.session_state.answers.get("payments", False))
-    ai_features = st.multiselect("AI features", ["Chatbot", "OCR", "Recommendations", "None"],
-                                 default=st.session_state.answers.get("ai_features", []))
-    integrations = st.multiselect("Integrations", ["Supabase", "Stripe", "Google Sheets", "None"],
-                                  default=st.session_state.answers.get("integrations", []))
-    content_support = st.selectbox("Content readiness", ["Have copy", "Need copy", "Mixed"],
-                                   index=st.session_state.answers.get("content_idx", 0))
+    audience = st.selectbox(
+        "Audience size",
+        ["Small <1k", "Growing 1–10k", "Large >10k"],
+        key="audience_input",
+        on_change=update_answers
+    )
+    auth_needed = st.checkbox(
+        "Auth needed?",
+        key="auth_input",
+        on_change=update_answers
+    )
+    payments_needed = st.checkbox(
+        "Payments needed?",
+        key="payments_input",
+        on_change=update_answers
+    )
+    ai_features = st.multiselect(
+        "AI features",
+        ["Chatbot", "OCR", "Recommendations", "None"],
+        key="ai_features_input",
+        on_change=update_answers
+    )
+    integrations = st.multiselect(
+        "Integrations",
+        ["Supabase", "Stripe", "Google Sheets", "None"],
+        key="integrations_input",
+        on_change=update_answers
+    )
+    content_support = st.selectbox(
+        "Content readiness",
+        ["Have copy", "Need copy", "Mixed"],
+        key="content_input",
+        on_change=update_answers
+    )
 
     st.markdown("### Step 3 · Branding & Budget")
-    branding = st.selectbox("Branding", ["Have brand kit", "Use default"])
-    timeline = st.selectbox("Timeline", ["1 week", "2–4 weeks", ">1 month"])
-    budget = st.selectbox("Budget comfort", ["Entry", "Standard", "Premium"])
+    branding = st.selectbox(
+        "Branding",
+        ["Have brand kit", "Use default"],
+        key="branding_input",
+        on_change=update_answers
+    )
+    timeline = st.selectbox(
+        "Timeline",
+        ["1 week", "2–4 weeks", ">1 month"],
+        key="timeline_input",
+        on_change=update_answers
+    )
+    budget = st.selectbox(
+        "Budget comfort",
+        ["Entry", "Standard", "Premium"],
+        key="budget_input",
+        on_change=update_answers
+    )
 
-    submitted = st.form_submit_button("✅ Submit Wizard")
+    submitted = st.button("✅ Submit Wizard")
+    if submitted:
+        st.success("Wizard submitted successfully! 🎉")
+        reset_wizard_fields()
+        st.rerun()
+
+# ──────────────────────────────────────────────────────────────
+# Live Indicators Sidebar (driven from session_state)
+# ──────────────────────────────────────────────────────────────
+with st.sidebar.expander("ℹ️ About Indicators", expanded=False):
+    st.markdown("""
+    **Indicators Guide**
+    - 💰 *Estimated Cost*: Mirrors your feature cost model.
+    - 🔺 *Risk Level*: Based on overall project complexity.
+    - 🤖 *AI Tools Needed*: Number of AI features selected.
+    """)
+
+# ensure indicators exist
+indicators = st.session_state.get("indicators", compute_live_indicators(st.session_state.get("answers", {})))
+
+# Display three metrics (use nice formatting)
+st.sidebar.metric("💰 Estimated Cost", f"R {indicators['estimated_cost']:.2f}")
+st.sidebar.metric("🔺 Risk Level", indicators["risk_level"])
+st.sidebar.metric("🤖 AI Tools Needed", indicators["ai_tools_needed"])
 
 app_footer()
 
 # ───────────────────────────────────────────────
-# Persist + live cost update
+# Persisted answers are already kept in st.session_state by the callback.
+# Compute live cost from sanctioned answers so it stays in sync with indicators.
 # ───────────────────────────────────────────────
-st.session_state.answers.update({
-    "title": project_name,
-    "contact_email": contact_email,
-    "industry": industry,
-    "goal": goal,
-    "audience": audience,
-    "auth": auth_needed,
-    "payments": payments_needed,
-    "ai_features": ai_features,
-    "integrations": integrations,
-    "content": content_support,
-    "branding": branding,
-    "timeline": timeline,
-    "budget": budget,
-})
-
-# Compute cost live every render
-live_cost = compute_feature_cost(auth_needed, payments_needed, ai_features, integrations, content_support)
+answers = st.session_state.get("answers", {})
+live_cost = compute_feature_cost(
+    answers.get("auth_needed", False),
+    answers.get("payments_needed", False),
+    answers.get("ai_features", []),
+    answers.get("integrations", []),
+    answers.get("content_support", "")
+)
 st.session_state.total_cost = live_cost["total"]
 
 # ───────────────────────────────────────────────

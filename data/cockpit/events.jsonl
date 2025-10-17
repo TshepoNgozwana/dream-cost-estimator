@@ -19,3 +19,21 @@
 {"ts": "2025-10-14T06:29:07.462495+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
 {"ts": "2025-10-14T06:29:27.763497+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
 {"ts": "2025-10-14T06:30:07.433931+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-14T06:46:44.848627+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-14T06:47:51.212605+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-15T12:23:54.845591+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-15T12:23:57.606272+00:00", "user": "local-dev", "tool": "dream-landing", "action": "indicator.update", "payload": {"estimated_cost": 29.0, "risk_level": "Low", "ai_tools_needed": 0}, "session": "b3fd9a2b-9d2b-498c-9073-b4806b0cd24a"}
+{"ts": "2025-10-15T12:26:50.115731+00:00", "user": "local-dev", "tool": "dream-landing", "action": "indicator.update", "payload": {"estimated_cost": 29.0, "risk_level": "High", "ai_tools_needed": 0}, "session": "009a60f4-42a2-4eba-accc-231a61e68bf4"}
+{"ts": "2025-10-15T12:35:12.672598+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-15T12:36:15.706100+00:00", "user": "local-dev", "tool": "dream-landing", "action": "indicator.update", "payload": {"estimated_cost": 43.0, "risk_level": "Low", "ai_tools_needed": 3}, "session": "1f356caa-b55a-4d9f-a5d2-411a49f37829"}
+{"ts": "2025-10-15T12:43:37.444062+00:00", "user": "local-dev", "tool": "dream-landing", "action": "indicator.update", "payload": {"estimated_cost": 29.0, "risk_level": "Low", "ai_tools_needed": 0}, "session": "778dc465-e14f-496a-a077-f8f6d981b604"}
+{"ts": "2025-10-15T12:44:22.347794+00:00", "user": "local-dev", "tool": "dream-landing", "action": "indicator.update", "payload": {"estimated_cost": 29.0, "risk_level": "High", "ai_tools_needed": 0}, "session": "d7364858-387e-4cb5-bde6-52b6381476f3"}
+{"ts": "2025-10-15T12:44:40.048987+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-15T12:44:54.118273+00:00", "user": "local-dev", "tool": "dream-landing", "action": "indicator.update", "payload": {"estimated_cost": 41.0, "risk_level": "Low", "ai_tools_needed": 1}, "session": "98c9f0bd-85c1-48c9-97ba-ee0c7f38c46a"}
+{"ts": "2025-10-15T13:30:48.560461+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-15T13:31:11.725852+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-15T13:40:02.987772+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-15T13:41:50.531791+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-15T13:52:09.180273+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}
+{"ts": "2025-10-15T13:53:24.468942+00:00", "user": "local-dev", "tool": "dream-landing", "action": "summary.qr_generated", "payload": {"title": "Untitled", "goal": "", "estimated_cost_r": 29.0}, "session": "aef25b2a-8825-46d1-9946-9d9f76223650"}
+{"ts": "2025-10-15T13:55:06.158366+00:00", "user": "local-dev", "tool": "dream-landing", "action": "preflight.ok", "payload": {"openai_key": true}}

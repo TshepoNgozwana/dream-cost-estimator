@@ -65,3 +65,23 @@
 {"ts": "2025-10-10T18:03:56.660273+00:00", "event": "submit_wizard", "payload": {"answers_count": 13, "est_cost": 52.0}, "app": "dream-landing", "version": "1.0"}
 {"ts": "2025-10-10T18:10:30.291845+00:00", "event": "submit_wizard", "payload": {"answers_count": 13, "est_cost": 52.0}, "app": "dream-landing", "version": "1.4"}
 {"ts": "2025-10-13T07:31:27.613446+00:00", "event": "submit_wizard", "payload": {"answers_count": 13, "est_cost": 54.0}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T12:26:50.133428+00:00", "event": "submit_wizard", "payload": {"answers_count": 13, "est_cost": 58.0}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T12:44:22.360001+00:00", "event": "submit_wizard", "payload": {"answers_count": 13, "est_cost": 56.0}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:38:39.375018+00:00", "event": "indicator.update", "payload": {"estimated_cost": 29.0, "risk_level": "High", "ai_tools_needed": 0}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:38:50.362722+00:00", "event": "indicator.update", "payload": {"estimated_cost": 39.0, "risk_level": "High", "ai_tools_needed": 1}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:38:58.342821+00:00", "event": "indicator.update", "payload": {"estimated_cost": 29.0, "risk_level": "High", "ai_tools_needed": 0}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:39:04.142395+00:00", "event": "indicator.update", "payload": {"estimated_cost": 31.0, "risk_level": "High", "ai_tools_needed": 0}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:39:07.260052+00:00", "event": "indicator.update", "payload": {"estimated_cost": 29.0, "risk_level": "High", "ai_tools_needed": 0}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:39:14.443215+00:00", "event": "indicator.update", "payload": {"estimated_cost": 29.0, "risk_level": "Low", "ai_tools_needed": 0}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:39:18.111937+00:00", "event": "indicator.update", "payload": {"estimated_cost": 29.0, "risk_level": "High", "ai_tools_needed": 0}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:39:33.854536+00:00", "event": "indicator.update", "payload": {"estimated_cost": 39.0, "risk_level": "High", "ai_tools_needed": 1}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:39:38.851951+00:00", "event": "indicator.update", "payload": {"estimated_cost": 42.0, "risk_level": "High", "ai_tools_needed": 1}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:52:17.208989+00:00", "event": "indicator.update", "payload": {"estimated_cost": 29.0, "risk_level": "High", "ai_tools_needed": 0}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:52:37.417891+00:00", "event": "indicator.update", "payload": {"estimated_cost": 39.0, "risk_level": "High", "ai_tools_needed": 1}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:52:41.773876+00:00", "event": "indicator.update", "payload": {"estimated_cost": 41.0, "risk_level": "High", "ai_tools_needed": 1}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:52:45.342037+00:00", "event": "indicator.update", "payload": {"estimated_cost": 44.0, "risk_level": "High", "ai_tools_needed": 1}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:52:51.011973+00:00", "event": "indicator.update", "payload": {"estimated_cost": 44.0, "risk_level": "Medium", "ai_tools_needed": 1}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:54:11.011235+00:00", "event": "indicator.update", "payload": {"estimated_cost": 29.0, "risk_level": "High", "ai_tools_needed": 0}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:54:18.329407+00:00", "event": "indicator.update", "payload": {"estimated_cost": 39.0, "risk_level": "High", "ai_tools_needed": 1}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:54:23.765208+00:00", "event": "indicator.update", "payload": {"estimated_cost": 41.0, "risk_level": "High", "ai_tools_needed": 1}, "app": "dream-landing", "version": "1.4"}
+{"ts": "2025-10-15T13:54:29.299553+00:00", "event": "indicator.update", "payload": {"estimated_cost": 41.0, "risk_level": "Medium", "ai_tools_needed": 1}, "app": "dream-landing", "version": "1.4"}
