@@ -1,54 +1,44 @@
-from typing import Dict, Any
-<<<<<<< HEAD
-from streamlit_app import compute_feature_cost
+from datetime import datetime, timezone
+import json
+from pathlib import Path
 
-def compute_live_indicators(answers: Dict[str, Any]) -> Dict[str, Any]:
-    feature_cost = compute_feature_cost(
-        auth_needed=answers.get("auth_needed", False),
-        payments_needed=answers.get("payments_needed", False),
-        ai_features=answers.get("ai_features", []),
-        integrations=answers.get("integrations", []),
-        content_support=answers.get("content_support", "")
-    )
+LOG_FILE = Path("data/cockpit/events.jsonl")
+LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-    total_cost = feature_cost["total"]
-    breakdown = feature_cost["breakdown"]
+def compute_live_indicators(answers: dict, feature_cost: dict) -> dict:
+    """Compute live project indicators for cost, risk, and AI use."""
+    total_cost = feature_cost.get("total", 0)
+    ai_features = answers.get("ai_features", [])
+    payments_needed = answers.get("payments_needed")
+    auth_needed = answers.get("auth_needed")
 
-    # Risk rule
-    if total_cost <= 40:
-        risk = "Low"
-    elif total_cost <= 55:
-        risk = "Medium"
-    else:
-        risk = "High"
+    # Risk calculation heuristic
+    risk_level = "Low"
+    if total_cost > 50 or payments_needed or auth_needed:
+        risk_level = "Medium"
+    if total_cost > 80 or (payments_needed and ai_features):
+        risk_level = "High"
 
-    return {
-        "estimated_cost": round(total_cost, 1),
-        "risk_level": risk,
-        "ai_tools_needed": len(answers.get("ai_features", [])),
-        "breakdown": breakdown,
-=======
+    ai_tools_needed = len(ai_features) if ai_features else 0
 
-def compute_live_indicators(wizard_answers: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Return simple live indicators shown in the sidebar:
-    - cost_tally
-    - risk_level
-    - ai_needed
-    Placeholder logic for now; Tshepo can replace/extend.
-    """
-    # very basic draft scoring
-    base = 29
-    auth = 4 if wizard_answers.get("auth") else 0
-    payments = 8 if wizard_answers.get("payments") else 0
-    ai = 10 if wizard_answers.get("ai") else 0
-    integrations = 2 * len(wizard_answers.get("integrations", []))
-    content = 3 if wizard_answers.get("need_copy") else 0
-
-    cost = base + auth + payments + ai + min(integrations, 6) + content
-    return {
-        "cost_tally": cost,
-        "risk_level": "low" if cost < 40 else ("med" if cost < 60 else "high"),
-        "ai_needed": bool(ai),
->>>>>>> origin/feat/indicators-helper
+    indicators = {
+        "estimated_cost": total_cost,
+        "risk_level": risk_level,
+        "ai_tools_needed": ai_tools_needed,
+        "ts": datetime.now(timezone.utc).isoformat()
     }
+
+    # Log cockpit event
+    _log_indicator_update(indicators)
+    return indicators
+
+
+def _log_indicator_update(indicators: dict):
+    """Append indicator update to cockpit JSONL file."""
+    entry = {
+        "ts": indicators["ts"],
+        "event": "indicator.update",
+        "payload": indicators,
+    }
+    with LOG_FILE.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
